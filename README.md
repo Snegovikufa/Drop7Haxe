@@ -1,4 +1,4 @@
-PiratePig
+Drop7Haxe
 =========
 
-[sample] Puzzle game similar to Bejeweled, fully cross-platform for NME
+Drop7 by Zynga game clone written in Haxe OpenFL
