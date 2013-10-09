@@ -38,10 +38,7 @@ class Drop7Haxe extends Sprite {
 
 	private function construct ():Void {
 
-		Footer.smoothing = true;
-
 		addChild (Background);
-		addChild (Footer);
 		addChild (Game);
 
 	}
@@ -50,7 +47,6 @@ class Drop7Haxe extends Sprite {
 	private function initialize ():Void {
 
 		Background = new Bitmap (Assets.getBitmapData ("images/back.png"));
-		Footer = new Bitmap (Assets.getBitmapData ("images/game_lemon.png"));
 		Game = new Drop7Game ();
 
 	}
@@ -62,11 +58,6 @@ class Drop7Haxe extends Sprite {
 		Background.height = newHeight;
 
 		Game.resize (newWidth, newHeight);
-
-		Footer.scaleX = Game.currentScale;
-		Footer.scaleY = Game.currentScale;
-		Footer.x = newWidth / 2 - Footer.width / 2;
-		Footer.y = newHeight - Footer.height;
 
 	}
 

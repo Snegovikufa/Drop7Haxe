@@ -17,9 +17,7 @@ import nme.text.TextFormatAlign;
 import nme.Assets;
 import nme.Lib;
 
-
 class Drop7Game extends Sprite {
-
 
 	private static var NUM_COLUMNS:Int = 7;
 	private static var NUM_ROWS:Int = 7;
@@ -36,7 +34,6 @@ class Drop7Game extends Sprite {
 
 	private var Background:Sprite;
 	private var IntroSound:Sound;
-	private var Logo:Bitmap;
 	private var Score:TextField;
 	private var Sound3:Sound;
 	private var Sound4:Sound;
@@ -119,9 +116,6 @@ class Drop7Game extends Sprite {
 
 
 	private function construct ():Void {
-
-		Logo.smoothing = true;
-		addChild (Logo);
 
 		var font = Assets.getFont ("fonts/FreebooterUpdated.ttf");
 		var defaultFormat = new TextFormat (font.fontName, 60, 0x000000);
@@ -275,8 +269,7 @@ class Drop7Game extends Sprite {
 
 	private function getColumn(p:Point): Int
 	{
-		trace ("X:" + p.x + "   " + (p.x / (66 + 16)));
-		return Math.round(p.x / (66 + 16));
+		return Math.round((p.x - this.x) / (57 + 16));
 	}
 
 
@@ -296,7 +289,6 @@ class Drop7Game extends Sprite {
 		}
 
 		Background = new Sprite ();
-		Logo = new Bitmap (Assets.getBitmapData ("images/game_lemon.png"));
 		Score = new TextField ();
 		TileContainer = new Sprite ();
 	}
