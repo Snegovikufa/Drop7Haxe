@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 
-	<meta title="Pirate Pig" package="io.github.snegovikufa.drop7haxe" version="1.0.0" company="NME" />
-	<app path="Export" file="PiratePig" main="io.github.snegovikufa.drop7haxe.Drop7Haxe" />
+	<meta title="Drop7Haxe" package="io.github.snegovikufa.drop7haxe" version="1.0.0" company="NME" />
+	<app path="Export" file="Drop7Haxe" main="io.github.snegovikufa.drop7haxe.Drop7Haxe" />
 
 	<window width="800" height="600" if="desktop" />
 	<window width="0" height="0" if="html5" />
@@ -17,7 +17,7 @@
 	<assets path="Assets/fonts" rename="fonts" include="*.ttf" />
 	<assets path="Assets/images" rename="images" include="*" exclude="icon.svg" />
 
-	<icon path="Assets/images/icon.svg" />
+	<icon path="Assets/images/icon.png" />
 
 	<assets path="Assets/sounds" rename="sounds" if="web">
 		<sound path="3.mp3" id="sound3" />

@@ -249,19 +249,22 @@ class Drop7Game extends Sprite {
 
 				if (tile != null && !tile.moving)
 					foundTiles.push (tile);
-			}
-
-			for (tile in foundTiles) {
-				if (tile.type == foundTiles.length) {
-					matchedTiles.push(tile);
+				else {
+					for (tile in foundTiles)
+						if (tile.type == foundTiles.length)
+							matchedTiles.push(tile);
+					foundTiles = new Array <Tile> ();
 				}
 			}
+
+			for (tile in foundTiles)
+				if (tile.type == foundTiles.length)
+					matchedTiles.push(tile);
 		}
 
 		return matchedTiles;
 
 	}
-
 
 	private function getPosition (row:Int, column:Int):Point {
 		return new Point (column * (57 + 16), row * (57 + 16));

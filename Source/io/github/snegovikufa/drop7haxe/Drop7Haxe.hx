@@ -46,7 +46,7 @@ class Drop7Haxe extends Sprite {
 
 	private function initialize ():Void {
 
-		Background = new Bitmap (Assets.getBitmapData ("images/back.png"));
+		Background = new Bitmap (Assets.getBitmapData ("images/back.jpg"));
 		Game = new Drop7Game ();
 
 	}
