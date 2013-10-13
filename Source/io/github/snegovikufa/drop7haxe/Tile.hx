@@ -12,12 +12,21 @@ import nme.display.Sprite;
 
 class Tile extends Sprite {
 
-
 	public var column:Int;
 	public var moving:Bool;
 	public var removed:Bool;
 	public var row:Int;
 	public var type:Int;
+
+	public static var TileImages:Array <String> = [
+		"images/1.png",
+		"images/2.png",
+		"images/3.png",
+		"images/4.png",
+		"images/5.png",
+		"images/6.png",
+		"images/7.png",
+		];
 
 
 	public function new (imagePath:String) {
@@ -49,12 +58,9 @@ class Tile extends Sprite {
 		mouseEnabled = true;
 		buttonMode = false;
 
-		#if !js
 		scaleX = 1;
 		scaleY = 1;
 		alpha = 1;
-		#end
-
 	}
 
 
@@ -62,33 +68,24 @@ class Tile extends Sprite {
 
 		moving = true;
 
-		Actuate.tween (this, duration, { x: targetX, y: targetY } ).ease (Quad.easeOut).onComplete (this_onMoveToComplete);
-
+		Actuate
+			.tween (this, duration, { x: targetX, y: targetY } )
+			.ease (Quad.easeOut)
+			.onComplete (this_onMoveToComplete);
 	}
 
 
 	public function remove (animate:Bool = true):Void {
 
-		#if js
-		animate = false;
-		#end
-
 		if (!removed) {
 
-			if (animate) {
+			mouseEnabled = false;
+			buttonMode = false;
 
-				mouseEnabled = false;
-				buttonMode = false;
-
-				parent.addChildAt (this, 0);
-				Actuate.tween (this, 0.6, { alpha: 0, scaleX: 2, scaleY: 2, x: x - width / 2, y: y - height / 2 } ).onComplete (this_onRemoveComplete);
-
-			} else {
-
-				this_onRemoveComplete ();
-
-			}
-
+			parent.addChildAt (this, 0);
+			Actuate
+				.tween (this, 0.6, { alpha: 0, scaleX: 2, scaleY: 2, x: x - width / 2, y: y - height / 2 } )
+				.onComplete (this_onRemoveComplete);
 		}
 
 		removed = true;
@@ -96,19 +93,17 @@ class Tile extends Sprite {
 	}
 
 
-
+	public function explode() : Tile
+	{
+		return this;
+	}
 
 	// Event Handlers
-
-
-
-
 	private function this_onMoveToComplete ():Void {
 
 		moving = false;
 
 	}
-
 
 	private function this_onRemoveComplete ():Void {
 

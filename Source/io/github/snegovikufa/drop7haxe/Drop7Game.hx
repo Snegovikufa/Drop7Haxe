@@ -22,16 +22,6 @@ class Drop7Game extends Sprite {
 	private static var NUM_COLUMNS:Int = 7;
 	private static var NUM_ROWS:Int = 7;
 
-	private static var tileImages:Array <String> = [
-		"images/1.png",
-		"images/2.png",
-		"images/3.png",
-		"images/4.png",
-		"images/5.png",
-		"images/6.png",
-		"images/7.png",
-		];
-
 	private var Background:Sprite;
 	private var IntroSound:Sound;
 	private var Score:TextField;
@@ -40,13 +30,16 @@ class Drop7Game extends Sprite {
 	private var Sound5:Sound;
 	private var TileContainer:Sprite;
 
+	private var lock:Bool;
+
 	public var currentScale:Float;
 	public var currentScore:Int;
 
 	private var cacheMouse:Point;
 	private var needToCheckMatches:Bool;
 	private var currentColumn:Int;
-	// private var selectedTile:Tile;
+
+	private var nextTile:DropTile;
 	private var tiles:Array <Array <Tile>>;
 	private var usedTiles:Array <Tile>;
 
@@ -62,11 +55,10 @@ class Drop7Game extends Sprite {
 
 	}
 
-
-	private function addTile (row:Int, column:Int, animate:Bool = true):Void {
+	private function addTile (row:Int, column:Int):Void {
 
 		var tile = null;
-		var type = Math.round (Math.random () * (tileImages.length - 1)) + 1;
+		var type = Math.round (Math.random () * (Tile.TileImages.length - 1)) + 1;
 
 		for (usedTile in usedTiles) {
 			if (usedTile.removed && usedTile.parent == null && usedTile.type == type) {
@@ -75,7 +67,7 @@ class Drop7Game extends Sprite {
 		}
 
 		if (tile == null) {
-			tile = new Tile (tileImages[type - 1]);
+			tile = new Tile (Tile.TileImages[type - 1]);
 		}
 
 		tile.initialize ();
@@ -86,32 +78,44 @@ class Drop7Game extends Sprite {
 		tiles[row][column] = tile;
 
 		var position = getPosition (row, column);
+		var firstPosition = getPosition (-1, column);
 
-		if (animate) {
+		tile.x = firstPosition.x;
+		tile.y = firstPosition.y;
 
-			var firstPosition = getPosition (-1, column);
-
-			#if !js
-			tile.alpha = 0;
-			#end
-			tile.x = firstPosition.x;
-			tile.y = firstPosition.y;
-
-			tile.moveTo (0.15 * (row + 1), position.x, position.y);
-			#if !js
-			Actuate.tween (tile, 0.3, { alpha: 1 } ).delay (0.15 * (row - 2)).ease (Quad.easeOut);
-			#end
-
-		} else {
-
-			tile.x = position.x;
-			tile.y = position.y;
-
-		}
+		tile.moveTo (0.15 * (row + 1), position.x, position.y);
+		Actuate.tween (tile, 0.3, { alpha: 1 } ).delay (0.15 * (row - 2)).ease (Quad.easeOut);
 
 		TileContainer.addChild (tile);
 		needToCheckMatches = true;
 
+	}
+
+	private function addNextTile ():Void {
+
+		var column = currentColumn;
+		
+		var type = Math.round (Math.random () * (Tile.TileImages.length - 1)) + 1;
+		nextTile = new DropTile (Tile.TileImages[type - 1]);
+
+		nextTile.initialize ();
+
+		var row = -1;
+
+		nextTile.type = type;
+		nextTile.row = row;
+		nextTile.column = column;
+
+		var position = getPosition (nextTile.row, nextTile.column);
+		var firstPosition = getPosition (-1, column);
+
+		nextTile.x = firstPosition.x;
+		nextTile.y = firstPosition.y;
+
+		nextTile.moveTo (0.15 * (row + 1), position.x, position.y);
+		Actuate.tween (nextTile, 0.3, { alpha: 1 } ).delay (0.15 * (row - 2)).ease (Quad.easeOut);
+
+		TileContainer.addChild (nextTile);
 	}
 
 
@@ -121,11 +125,6 @@ class Drop7Game extends Sprite {
 		var defaultFormat = new TextFormat (font.fontName, 60, 0x000000);
 		defaultFormat.align = TextFormatAlign.RIGHT;
 
-		#if js
-		// Right-aligned text is not supported in HTML5 yet
-		defaultFormat.align = TextFormatAlign.LEFT;
-		#end
-
 		var contentWidth = 75 * NUM_COLUMNS;
 
 		Score.x = contentWidth - 200;
@@ -133,31 +132,22 @@ class Drop7Game extends Sprite {
 		Score.y = 12;
 		Score.selectable = false;
 		Score.defaultTextFormat = defaultFormat;
-
-		#if !js
 		Score.filters = [ new BlurFilter (1.5, 1.5), new DropShadowFilter (1, 45, 0, 0.2, 5, 5) ];
-		#else
-		Score.y = 0;
-		Score.x += 90;
-		#end
-
 		Score.embedFonts = true;
 		addChild (Score);
 
 		Background.y = 85;
 		Background.graphics.beginFill (0xFFFFFF, 0.4);
 		Background.graphics.drawRect (0, 0, contentWidth, 75 * NUM_ROWS);
-
-		#if !js
 		Background.filters = [ new BlurFilter (10, 10) ];
 		addChild (Background);
-		#end
 
 		TileContainer.x = 14;
 		TileContainer.y = Background.y + 14;
-		// TileContainer.addEventListener (MouseEvent.MOUSE_DOWN, TileContainer_onMouseDown);
+
 		Lib.current.stage.addEventListener (MouseEvent.MOUSE_DOWN, stage_onMouseDown);
 		Lib.current.stage.addEventListener (MouseEvent.MOUSE_UP, stage_onMouseUp);
+		Lib.current.stage.addEventListener (MouseEvent.MOUSE_MOVE, stage_onMouseMove);
 		addChild (TileContainer);
 
 		IntroSound = Assets.getSound ("soundTheme");
@@ -197,20 +187,41 @@ class Drop7Game extends Sprite {
 						needToCheckMatches = true;
 
 					}
-
 				}
-
 			}
+		}
+	}
 
-			// for (i in 0...spaces) {
+	private function dropNextTile() :Void
+	{
+		if (nextTile == null)
+			return;
 
-			// 	var row = (spaces - 1) - i;
-			// 	addTile (row, column);
+		var spaces = 0;
+		var column = nextTile.column;
 
-			// }
+		for (row in 0...NUM_ROWS) {
 
+			var tile = tiles[row][column];
+			if (tile == null)
+				spaces++;
+			else
+				break;
 		}
 
+		if (spaces > 0) {
+
+			spaces = spaces - 1;
+
+			var position = getPosition (spaces, column);
+			nextTile.moveTo (0.15 * spaces, position.x, position.y);
+			nextTile.row = spaces;
+			tiles[spaces][column] = nextTile;
+
+			needToCheckMatches = true;
+		}
+
+		nextTile = null;
 	}
 
 
@@ -299,30 +310,35 @@ class Drop7Game extends Sprite {
 
 	public function newGame ():Void {
 
+		lock = true;
 		currentScore = 0;
 		Score.text = "0";
 
 		for (row in 0...NUM_ROWS)
 			for (column in 0...NUM_COLUMNS)
-				removeTile (row, column, false);
+				removeTile (row, column);
 
 		for (row in 0...2)
 			for (column in 0...NUM_COLUMNS)
-				addTile (row, column, false);
+				addTile (row, column);
 
 		IntroSound.play ();
 
 		removeEventListener (Event.ENTER_FRAME, this_onEnterFrame);
 		addEventListener (Event.ENTER_FRAME, this_onEnterFrame);
+
+		currentColumn = 0;
+		addNextTile ();
+		lock = false;
 	}
 
 
-	public function removeTile (row:Int, column:Int, animate:Bool = true):Void {
+	public function removeTile (row:Int, column:Int):Void {
 
 		var tile = tiles[row][column];
 
 		if (tile != null) {
-			tile.remove (animate);
+			tile.remove ();
 			usedTiles.push (tile);
 		}
 
@@ -339,19 +355,8 @@ class Drop7Game extends Sprite {
 		scaleX = 1;
 		scaleY = 1;
 
-		#if js
-
-		// looking up the total width and height is not working, so we'll calculate it ourselves
-
-		var currentWidth = 75 * NUM_COLUMNS;
-		var currentHeight = 75 * NUM_ROWS + 85;
-
-		#else
-
 		var currentWidth = width;
 		var currentHeight = height;
-
-		#end
 
 		if (currentWidth > maxWidth || currentHeight > maxHeight) {
 
@@ -378,54 +383,20 @@ class Drop7Game extends Sprite {
 	}
 
 
-	private function swapTile (tile:Tile, targetRow:Int, targetColumn:Int):Void {
-
-		if (targetColumn >= 0 && targetColumn < NUM_COLUMNS && targetRow >= 0 && targetRow < NUM_ROWS) {
-
-			var targetTile = tiles[targetRow][targetColumn];
-
-			if (targetTile != null && !targetTile.moving) {
-
-				tiles[targetRow][targetColumn] = tile;
-				tiles[tile.row][tile.column] = targetTile;
-
-				if (findMatches (true, false).length > 0 || findMatches (false, false).length > 0) {
-
-					targetTile.row = tile.row;
-					targetTile.column = tile.column;
-					tile.row = targetRow;
-					tile.column = targetColumn;
-					var targetTilePosition = getPosition (targetTile.row, targetTile.column);
-					var tilePosition = getPosition (tile.row, tile.column);
-
-					targetTile.moveTo (0.3, targetTilePosition.x, targetTilePosition.y);
-					tile.moveTo (0.3, tilePosition.x, tilePosition.y);
-
-					needToCheckMatches = true;
-
-				} else {
-
-					tiles[targetRow][targetColumn] = targetTile;
-					tiles[tile.row][tile.column] = tile;
-
-				}
-
-			}
-
-		}
-
-	}
-
-
 	// Event Handlers
 
 	private function stage_onMouseUp (event:MouseEvent):Void {
 
+		currentColumn = getColumn(new Point(event.stageX, event.stageY));
+
 		if (currentColumn >= 0 && currentColumn < NUM_COLUMNS)
 		{
-			addTile(0, currentColumn);
-			dropTiles ();
+			if (nextTile != null) {
+				nextTile.board = this;
+				dropNextTile ();
+			}
 		}
+
 	}
 
 	private function this_onEnterFrame (event:Event):Void {
@@ -436,21 +407,95 @@ class Drop7Game extends Sprite {
 			matchedTiles = matchedTiles.concat (findMatches (true));
 			matchedTiles = matchedTiles.concat (findMatches (false));
 
-			for (tile in matchedTiles)
-				removeTile (tile.row, tile.column);
 
-			if (matchedTiles.length > 0)
+			if (matchedTiles.length > 0) {
 				Score.text = Std.string (currentScore);
-				dropTiles ();
+
+				for (tile in matchedTiles) {
+					explodeTiles (tile.row, tile.column);
+					removeTile (tile.row, tile.column);
+				}
+			}
+
+			dropTiles ();
+		}
+
+	}
+
+	private function explodeTiles (row:Int, column:Int)
+	{
+
+		explodeTile (row, column - 1);
+		explodeTile (row, column + 1);
+		explodeTile (row - 1, column);
+		explodeTile (row + 1, column);
+
+	}
+
+	private function explodeTile (row:Int, column:Int): Void
+	{
+
+		if (row < 0 || row >= NUM_ROWS)
+			return;
+
+		if (column < 0 || column >= NUM_COLUMNS)
+			return;
+
+		
+		var tile = tiles[row][column];
+		if (tile != null) {
+
+			var newTile = tile.explode ();
+			if (newTile != tile) {
+				tile.remove ();
+				tiles[row][column] = newTile;
+				TileContainer.addChild (newTile);
+			}
 
 		}
+
 	}
 
 	private function TileContainer_onMouseDown (event:MouseEvent):Void {
+
 		currentColumn = getColumn(new Point(event.stageX, event.stageY));
+
 	}
 
 	private function stage_onMouseDown (event:MouseEvent):Void {
+
 		currentColumn = getColumn(new Point(event.stageX, event.stageY));
+
+	}
+
+	private function stage_onMouseMove (event:MouseEvent): Void {
+
+		var point = new Point (event.stageX, event.stageY);
+		moveNextTile (point);
+
+	}
+
+	private function moveNextTile (point: Point): Void
+	{
+
+		if (nextTile == null)
+			return;
+
+		var column = getColumn (point);
+		if (column >= 0 && column < NUM_COLUMNS) {
+			var position = getPosition (nextTile.row, column);
+			nextTile.column = column;
+			nextTile.x = position.x;
+			nextTile.y = position.y;
+		}
+
+	}
+
+	public function onTileDrop()
+	{
+
+		addNextTile ();
+		needToCheckMatches = true;
+
 	}
 }
