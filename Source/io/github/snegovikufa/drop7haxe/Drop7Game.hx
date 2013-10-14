@@ -94,7 +94,7 @@ class Drop7Game extends Sprite {
 	private function addNextTile ():Void {
 
 		var column = currentColumn;
-		
+
 		var type = Math.round (Math.random () * (Tile.TileImages.length - 1)) + 1;
 		nextTile = new DropTile (Tile.TileImages[type - 1]);
 
@@ -441,7 +441,7 @@ class Drop7Game extends Sprite {
 		if (column < 0 || column >= NUM_COLUMNS)
 			return;
 
-		
+
 		var tile = tiles[row][column];
 		if (tile != null) {
 
@@ -491,10 +491,60 @@ class Drop7Game extends Sprite {
 
 	}
 
+	private function moveTilesUp (): Void
+	{
+		for (column in 0...NUM_COLUMNS)
+		{
+			for (row in 0...NUM_ROWS)
+			{
+				var tile = tiles[row][column];
+				var position = getPosition (row - 1, column);
+
+				if (tile != null)
+					tile.moveTo (0.25, position.x, position.y);
+
+				if (row > 0)
+					tiles[row - 1][column] = tile;
+
+			}
+		}
+	}
+
+	private function addLockedTiles ():Void
+	{
+		var row = NUM_ROWS - 1;
+		for (column in 0...NUM_COLUMNS)
+		{
+			var tile = new FullLockedTile ();
+			tile.initialize ();
+			tile.row = row;
+			tile.column = column;
+
+			var position = getPosition (row, column);
+			var firstPosition = getPosition (row + 1, column);
+
+			tile.x = firstPosition.x;
+			tile.y = firstPosition.y;
+
+			tile.moveTo (0.15, position.x, position.y);
+			TileContainer.addChild (tile);
+		}
+	}
+
 	public function onTileDrop()
 	{
 
 		addNextTile ();
+		needToCheckMatches = true;
+
+	}
+
+	private function nextLevel () : Void
+	{
+
+		needToCheckMatches = false;
+		moveTilesUp ();
+		addLockedTiles ();
 		needToCheckMatches = true;
 
 	}

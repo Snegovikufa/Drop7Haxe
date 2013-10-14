@@ -2,7 +2,6 @@
 package io.github.snegovikufa.drop7haxe;
 
 class FullLockedTile extends Tile {
-{
 
 	public function new () {
 
@@ -12,12 +11,12 @@ class FullLockedTile extends Tile {
 
 	public override function initialize ():Void {
 
-		super ();
+		super.initialize ();
 		type = -1;
 
 	}
 
-	public function explode() : Tile
+	public override function explode() : Tile
 	{
 		var tile = new PartialLockedTile ();
 		tile.initialize ();
