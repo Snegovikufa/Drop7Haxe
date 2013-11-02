@@ -5,9 +5,9 @@ import motion.Actuate;
 import motion.actuators.GenericActuator;
 import motion.easing.Linear;
 import motion.easing.Quad;
-import nme.Assets;
-import nme.display.Bitmap;
-import nme.display.Sprite;
+import openfl.Assets;
+import flash.display.Bitmap;
+import flash.display.Sprite;
 
 
 class Tile extends Sprite {
@@ -46,7 +46,6 @@ class Tile extends Sprite {
 
 		graphics.beginFill (0x000000, 0);
 		graphics.drawRect (-5, -5, 66, 66);
-
 	}
 
 

@@ -1,14 +1,13 @@
 package io.github.snegovikufa.drop7haxe;
 
 
-import nme.Assets;
-import nme.display.Bitmap;
-import nme.display.BitmapData;
-import nme.display.Sprite;
-import nme.events.Event;
-import nme.events.KeyboardEvent;
-import nme.Lib;
-import nme.system.Capabilities;
+import openfl.Assets;
+import flash.display.Bitmap;
+import flash.display.BitmapData;
+import flash.display.Sprite;
+import flash.events.Event;
+import flash.events.KeyboardEvent;
+import flash.Lib;
 
 
 class Drop7Haxe extends Sprite {

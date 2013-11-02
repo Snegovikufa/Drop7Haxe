@@ -3,19 +3,19 @@ package io.github.snegovikufa.drop7haxe;
 
 import motion.Actuate;
 import motion.easing.Quad;
-import nme.display.Bitmap;
-import nme.display.Sprite;
-import nme.events.Event;
-import nme.events.MouseEvent;
-import nme.filters.BlurFilter;
-import nme.filters.DropShadowFilter;
-import nme.geom.Point;
-import nme.media.Sound;
-import nme.text.TextField;
-import nme.text.TextFormat;
-import nme.text.TextFormatAlign;
-import nme.Assets;
-import nme.Lib;
+import flash.display.Bitmap;
+import flash.display.Sprite;
+import flash.events.Event;
+import flash.events.MouseEvent;
+import flash.filters.BlurFilter;
+import flash.filters.DropShadowFilter;
+import flash.geom.Point;
+import flash.media.Sound;
+import flash.text.TextField;
+import flash.text.TextFormat;
+import flash.text.TextFormatAlign;
+import flash.Lib;
+import openfl.Assets;
 
 class Drop7Game extends Sprite {
 
