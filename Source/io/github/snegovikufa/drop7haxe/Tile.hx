@@ -1,6 +1,5 @@
 package io.github.snegovikufa.drop7haxe;
 
-
 import motion.Actuate;
 import motion.actuators.GenericActuator;
 import motion.easing.Linear;

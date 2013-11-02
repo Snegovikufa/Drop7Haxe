@@ -1,6 +1,5 @@
 package io.github.snegovikufa.drop7haxe;
 
-
 import motion.Actuate;
 import motion.easing.Quad;
 import flash.display.Bitmap;
@@ -29,8 +28,11 @@ class Drop7Game extends Sprite {
 	private var Sound4:Sound;
 	private var Sound5:Sound;
 	private var TileContainer:Sprite;
+	private var Moves:Moves;
 
 	private var lock:Bool;
+
+	private var GameMode:GameMode;
 
 	public var currentScale:Float;
 	public var currentScore:Int;
@@ -145,10 +147,14 @@ class Drop7Game extends Sprite {
 		TileContainer.x = 14;
 		TileContainer.y = Background.y + 14;
 
+		Moves.x = 14;
+		Moves.y = 75 * (NUM_ROWS + 1) + 30;
+
 		Lib.current.stage.addEventListener (MouseEvent.MOUSE_DOWN, stage_onMouseDown);
 		Lib.current.stage.addEventListener (MouseEvent.MOUSE_UP, stage_onMouseUp);
 		Lib.current.stage.addEventListener (MouseEvent.MOUSE_MOVE, stage_onMouseMove);
 		addChild (TileContainer);
+		addChild (Moves);
 
 		IntroSound = Assets.getSound ("soundTheme");
 		Sound3 = Assets.getSound ("sound3");
@@ -305,6 +311,8 @@ class Drop7Game extends Sprite {
 		Background = new Sprite ();
 		Score = new TextField ();
 		TileContainer = new Sprite ();
+		GameMode = new TestEasyMode ();
+		Moves = new Moves (GameMode);
 	}
 
 
@@ -394,6 +402,12 @@ class Drop7Game extends Sprite {
 			if (nextTile != null) {
 				nextTile.board = this;
 				dropNextTile ();
+
+				if (GameMode.moves == 1) {
+					moveTilesUp ();
+				}
+				Moves.doMove ();
+
 			}
 		}
 
@@ -401,6 +415,12 @@ class Drop7Game extends Sprite {
 
 	private function this_onEnterFrame (event:Event):Void {
 
+		checkMatches ();
+
+	}
+
+	private function checkMatches()
+	{
 		if (needToCheckMatches) {
 
 			var matchedTiles = new Array <Tile> ();
@@ -419,7 +439,6 @@ class Drop7Game extends Sprite {
 
 			dropTiles ();
 		}
-
 	}
 
 	private function explodeTiles (row:Int, column:Int)
@@ -528,11 +547,22 @@ class Drop7Game extends Sprite {
 
 			tile.moveTo (0.15, position.x, position.y);
 			TileContainer.addChild (tile);
+
+			tiles[row][column] = tile;
 		}
 	}
 
 	public function onTileDrop()
 	{
+		needToCheckMatches = true;
+		checkMatches ();
+		needToCheckMatches = false;
+
+		if (Moves.count () == 0) {
+			nextLevel ();
+			GameMode.nextLevel ();
+			Moves.nextLevel ();
+		}
 
 		addNextTile ();
 		needToCheckMatches = true;
